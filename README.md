@@ -75,7 +75,7 @@
    ```bash
    gcloud run deploy myinstants-api \
      --source . \
-     --project=test-sveglia-app \
+     --project=wake-app-buddy \
      --region=europe-west1 \
      --allow-unauthenticated \
      --min 0 \
