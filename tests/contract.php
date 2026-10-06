@@ -67,7 +67,7 @@ function expect_keys($response, $keys, $case) {
 
 $list = capture_response("list");
 expect_keys($list, ["status", "author", "page", "count", "total_pages", "has_next", "data"], "list");
-if ($list["status"] !== "200" || $list["author"] !== "abdipr" || $list["page"] !== 2 ||
+if ($list["status"] !== "200" || $list["author"] !== "Djinask" || $list["page"] !== 2 ||
     $list["count"] !== 1 || $list["total_pages"] !== 3 || $list["has_next"] !== true ||
     !is_array($list["data"]) || $list["data"][0]["id"] !== "example") {
     fail_test("List response values do not match the existing API contract");
@@ -75,14 +75,14 @@ if ($list["status"] !== "200" || $list["author"] !== "abdipr" || $list["page"] !
 
 $detail = capture_response("detail");
 expect_keys($detail, ["status", "author", "data"], "detail");
-if ($detail["status"] !== "200" || $detail["author"] !== "abdipr" ||
+if ($detail["status"] !== "200" || $detail["author"] !== "Djinask" ||
     $detail["data"]["id"] !== "example") {
     fail_test("Detail response values do not match the existing API contract");
 }
 
 $error = capture_response("error");
 expect_keys($error, ["status", "author", "message"], "error");
-if ($error["status"] !== "400" || $error["author"] !== "abdipr" ||
+if ($error["status"] !== "400" || $error["author"] !== "Djinask" ||
     $error["message"] !== "Query parameter 'id' is required") {
     fail_test("Error response values do not match the existing API contract");
 }

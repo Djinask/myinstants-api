@@ -65,7 +65,7 @@ function parse_sounds($html) {
 function output_error($msg, $status = "404") {
     http_response_code((int)$status);
     header("Access-Control-Allow-Origin: *");
-    echo json_encode(["status" => $status, "author" => "abdipr", "message" => $msg], JSON_PRETTY_PRINT);
+    echo json_encode(["status" => $status, "author" => "Djinask", "message" => $msg], JSON_PRETTY_PRINT);
     exit;
 }
 
@@ -73,7 +73,7 @@ function output_json($data, $status = "200", $meta = []) {
     http_response_code((int)$status);
     header("Access-Control-Allow-Origin: *");
     header("Cache-Control: s-maxage=3600, stale-while-revalidate");
-    $response = array_merge(["status" => $status, "author" => "abdipr"], $meta, ["data" => $data]);
+    $response = array_merge(["status" => $status, "author" => "Djinask"], $meta, ["data" => $data]);
     echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     exit;
 }

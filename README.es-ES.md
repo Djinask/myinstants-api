@@ -106,7 +106,7 @@ Una respuesta exitosa típica (HTTP 200) devolverá un objeto JSON como este:
 ```json
 {
   "status": 200,
-  "author": "abdipr",
+  "author": "Djinask",
   "page": 4,
   "count": 30,
   "total_pages": 50,
@@ -136,7 +136,7 @@ Todos los errores devuelven objetos JSON con un código de estado HTTP apropiado
   ```json
   {
     "status": 404,
-    "author": "abdipr",
+    "author": "Djinask",
     "message": "Endpoint not found"
   }
   ```
