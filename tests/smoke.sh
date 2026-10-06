@@ -25,7 +25,11 @@ check_response() {
 }
 
 check_response "/" 200 '.status == "200" and .author == "abdipr" and (.message | type == "string")'
+check_response "/trending" 404 '.status == "404" and .author == "abdipr" and (.message | type == "string")'
+check_response "/best" 404 '.status == "404" and .author == "abdipr" and (.message | type == "string")'
 check_response "/detail" 400 '.status == "400" and .author == "abdipr" and (.message | type == "string")'
+check_response "/favorites" 400 '.status == "400" and .author == "abdipr" and (.message | type == "string")'
+check_response "/uploaded" 400 '.status == "400" and .author == "abdipr" and (.message | type == "string")'
 check_response "/search" 404 '.status == "404" and .author == "abdipr" and (.message | type == "string")'
 check_response "/recent?page=invalid" 400 '.status == "400" and .author == "abdipr" and (.message | type == "string")'
 check_response "/not-an-endpoint" 404 '.status == "404" and .author == "abdipr" and (.message | type == "string")'
