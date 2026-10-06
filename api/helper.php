@@ -7,18 +7,34 @@ ini_set('display_errors', '0');
 
 function fetch_html($url) {
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    if ($ch === false || !configure_upstream_request($ch, $url, 15)) {
+        output_error("Unable to initialize upstream request", "500");
+    }
     $htmlString = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $error = curl_error($ch);
-    if ($httpCode >= 400 || !$htmlString) {
-        output_error("Fetch failed: HTTP $httpCode, cURL Error: $error");
+    curl_close($ch);
+    if ($htmlString === false || $httpCode < 200 || $httpCode >= 300) {
+        $status = $httpCode === 404 ? "404" : ($httpCode === 429 ? "503" : "502");
+        $message = $httpCode > 0 ? "Upstream returned HTTP $httpCode" : "Upstream request failed";
+        if ($error !== "") $message .= ": $error";
+        output_error($message, $status);
     }
     return str_get_html($htmlString);
+}
+
+function configure_upstream_request($ch, $url, $timeout) {
+    return curl_setopt_array($ch, [
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 5,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => $timeout,
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    ]);
 }
 
 function parse_sounds($html) {
@@ -215,13 +231,10 @@ function fetch_mp3_durations($urls) {
     $handles = [];
     foreach ($urls as $i => $url) {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        if ($ch === false || !configure_upstream_request($ch, $url, 10)) {
+            $map[$url] = null;
+            continue;
+        }
         curl_multi_add_handle($mh, $ch);
         $handles[$i] = $ch;
     }
@@ -230,8 +243,8 @@ function fetch_mp3_durations($urls) {
         $mrc = curl_multi_exec($mh, $running);
         if ($running) curl_multi_select($mh, 1.0);
     } while ($running && $mrc == CURLM_OK);
-    foreach ($urls as $i => $url) {
-        $ch = $handles[$i];
+    foreach ($handles as $i => $ch) {
+        $url = $urls[$i];
         $data = curl_multi_getcontent($ch);
         $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $duration = null;

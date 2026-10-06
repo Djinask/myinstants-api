@@ -61,7 +61,33 @@
 
    Now you can access the API locally (e.g., `http://localhost:8000/best?q=id`).
 
-4. **Deploy to Vercel**:
+4. **Run the contract and routing tests**:
+
+   ```bash
+   php tests/contract.php
+   BASE_URL=http://localhost:8000 tests/smoke.sh
+   ```
+
+5. **Deploy to Google Cloud Run**:
+
+   The included `Dockerfile` runs the PHP API on Cloud Run's port 8080. This service returns MyInstants audio URLs; it does not proxy or store audio files.
+
+   ```bash
+   gcloud run deploy myinstants-api \
+     --source . \
+     --project=test-sveglia-app \
+     --region=europe-west1 \
+     --allow-unauthenticated \
+     --min 0 \
+     --max 3 \
+     --concurrency 1 \
+     --memory 256Mi \
+     --timeout 30s
+   ```
+
+   The deploy command prints the service URL to use as the API base URL.
+
+6. **Deploy to Vercel**:
    Deploying is simple. Click the button below to deploy this repository directly to your Vercel account.<br>
    [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fabdipr%2Fmyinstants-api%2F&redirect-url=https%3A%2F%2Fgithub.com%2Fabdipr%2Fmyinstants-api%2F)
 
